@@ -87,6 +87,11 @@ export default function App() {
             <p className="legend-hint">Klicka på en markerad sträcka för mer info</p>
           </div>
         )}
+        <div className="sidebar-footer">
+          <a href="https://github.com/bangzulu/vagkarta" target="_blank" rel="noreferrer">GitHub</a>
+          <a href="https://data.trafikverket.se/documentation/datacache/data-model" target="_blank" rel="noreferrer">Trafikverkets API</a>
+          <p>Kör lugnt! ❄️ /Oskar Z</p>
+        </div>
       </div>
 
       <div className="map-wrapper">
