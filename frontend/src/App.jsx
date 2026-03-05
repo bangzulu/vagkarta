@@ -83,6 +83,7 @@ export default function App() {
             <div className="legend-item"><span className="dot yellow" />Risk för besvärlig väglag</div>
             <div className="legend-item"><span className="dot red" />Besvärligt väglag</div>
             <div className="legend-item"><span className="dot blue" />Snö och isvägbana</div>
+            <div className="legend-item"><span className="dot black" />Ingen data</div>
             <p className="legend-hint">Klicka på en markerad sträcka för mer info</p>
           </div>
         )}
