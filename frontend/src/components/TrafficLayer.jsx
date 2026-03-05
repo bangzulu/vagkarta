@@ -5,6 +5,7 @@ const COLOR_MAP = {
   orange: "#f97316",
   yellow: "#eab308",
   green:  "#22c55e",
+  black:  "#34373c",
 };
 
 export default function TrafficLayer({ segments, onSegmentClick }) {

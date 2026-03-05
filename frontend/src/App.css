@@ -20,7 +20,7 @@
   --orange: #f97316;
   --red: #ef4444;
   --blue: #444def;
-  --black: #1a1a1b;
+  --black: #34373c;
 
   font-family: "DM Sans", "Segoe UI", sans-serif;
 }
@@ -37,13 +37,14 @@ body {
   width: 100vw;
 }
 
+/* ── Desktop layout: sidofält till vänster, karta till höger ── */
 .app {
   display: flex;
   height: 100vh;
   width: 100vw;
 }
 
-/* ── Sidebar ── */
+/* ── Sidofält ── */
 .sidebar {
   width: 320px;
   min-width: 320px;
@@ -54,6 +55,7 @@ body {
   padding: 28px 20px;
   overflow-y: auto;
   z-index: 100;
+  order: -1;
 }
 
 .sidebar-header {
@@ -73,7 +75,7 @@ body {
   margin-top: 4px;
 }
 
-/* ── Search section ── */
+/* ── Söksektion ── */
 .search-section {
   display: flex;
   flex-direction: column;
@@ -155,7 +157,7 @@ body {
   background: #252d3d;
 }
 
-/* ── Button ── */
+/* ── Knapp ── */
 .search-btn {
   width: 100%;
   padding: 11px;
@@ -197,7 +199,7 @@ body {
   to { transform: rotate(360deg); }
 }
 
-/* ── Error ── */
+/* ── Felmeddelande ── */
 .error-box {
   background: var(--error-bg);
   border: 1px solid var(--error-border);
@@ -218,7 +220,6 @@ body {
 
 /* ── Legend ── */
 .legend {
-  margin-top: auto;
   padding-top: 20px;
   border-top: 1px solid var(--border);
 }
@@ -258,17 +259,10 @@ body {
 .dot.green  { background: var(--green); }
 .dot.yellow { background: var(--yellow); }
 .dot.red    { background: var(--red); }
-.dot.blue { background: var(--blue); }
-.dot.black { background: var(--black); }
+.dot.blue   { background: var(--blue); }
+.dot.black  { background: var(--black); }
 
-/* ── Map ── */
-.map-wrapper {
-  flex: 1;
-  position: relative;
-  overflow: hidden;
-}
-
-/* ── Sidebar footer ── */
+/* ── Footer ── */
 .sidebar-footer {
   margin-top: auto;
   padding-top: 20px;
@@ -287,4 +281,124 @@ body {
 
 .sidebar-footer a:hover {
   text-decoration: underline;
+}
+
+/* ── Karta ── */
+.map-wrapper {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Legend som overlay på kartan (mobil) */
+.map-legend {
+  display: none;
+}
+
+/* Mobilrubrik – dold på desktop */
+.mobile-header {
+  display: none;
+}
+
+/* Desktop: legend i sidofältet, ej på kartan */
+.desktop-legend {
+  display: block;
+}
+
+/* ── Mobilanpassning ── */
+@media (max-width: 640px) {
+  body {
+    overflow: auto;
+  }
+
+  .app {
+    flex-direction: column;
+    height: auto;
+    min-height: 100vh;
+  }
+
+  /* Rubrik högst upp */
+  .mobile-header {
+    display: block;
+    background: var(--sidebar-bg);
+    border-bottom: 1px solid var(--border);
+    padding: 16px 16px 12px;
+  }
+
+  .mobile-header h1 {
+    font-size: 1.3rem;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+  }
+
+  /* Karta direkt under rubriken */
+  .map-wrapper {
+    height: 55vmax;
+    min-height: 260px;
+    width: 100%;
+    order: 0;
+  }
+
+  /* Legend som overlay längst ner på kartan */
+  .map-legend {
+    display: block;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(22, 27, 39, 0.92);
+    backdrop-filter: blur(6px);
+    border-top: 1px solid var(--border);
+    padding: 10px 14px;
+    z-index: 500;
+  }
+
+  .map-legend .legend {
+    border-top: none;
+    padding-top: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 14px;
+  }
+
+  .map-legend .legend-title {
+    width: 100%;
+    margin-bottom: 6px;
+  }
+
+  .map-legend .legend-hint {
+    width: 100%;
+  }
+
+  /* Sökpanel under kartan */
+  .sidebar {
+    width: 100%;
+    min-width: 0;
+    border-right: none;
+    border-top: 1px solid var(--border);
+    padding: 16px;
+    order: 1;
+    overflow: visible;
+  }
+
+  /* Dölj rubriken i sidofältet på mobil (visas i mobile-header istället) */
+  .sidebar-header {
+    display: none;
+  }
+
+  /* Dölj legend i sidofältet på mobil (visas på kartan istället) */
+  .desktop-legend {
+    display: none;
+  }
+
+  .sidebar-footer {
+    margin-top: 16px;
+  }
+}
+
+@media (max-width: 640px) {
+  .leaflet-container {
+    position: absolute !important;
+    top: 0; left: 0; right: 0; bottom: 0;
+  }
 }
