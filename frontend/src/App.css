@@ -4,30 +4,33 @@
   padding: 0;
 }
 
+/*
+  Paletten kommer från vägen själv:
+  asfalt, snö, vägmarkering, och de gula/röda varningsskyltarna.
+*/
 :root {
-  --bg: #0f1117;
-  --sidebar-bg: #161b27;
-  --border: #252d3d;
-  --text: #e8edf5;
-  --text-muted: #6b7a99;
-  --accent: #3b82f6;
-  --accent-hover: #2563eb;
-  --error-bg: #2a1215;
-  --error-border: #7f1d1d;
-  --error-text: #fca5a5;
-  --green: #22c55e;
-  --yellow: #eab308;
-  --orange: #f97316;
-  --red: #ef4444;
-  --blue: #444def;
-  --black: #34373c;
+  --asphalt: #2A2D30;
+  --asphalt-soft: #4A4F55;
+  --gravel: #6B7177;
+  --marking: #D7DADD;
+  --snow: #FFFFFF;
+  --frost: #F1F3F4;
+  --sign-yellow: #F6B40E;
+  --sign-yellow-hover: #E5A600;
+  --sign-red: #C8102E;
 
-  font-family: "DM Sans", "Segoe UI", sans-serif;
+  --font: "Barlow", system-ui, sans-serif;
+  --font-narrow: "Barlow Semi Condensed", "Barlow", system-ui, sans-serif;
+
+  font-family: var(--font);
+  font-size: 16px;
+  line-height: 1.45;
+  color: var(--asphalt);
+  -webkit-font-smoothing: antialiased;
 }
 
 body {
-  background: var(--bg);
-  color: var(--text);
+  background: var(--frost);
   height: 100vh;
   overflow: hidden;
 }
@@ -37,22 +40,37 @@ body {
   width: 100vw;
 }
 
-/* ── Desktop layout: sidofält till vänster, karta till höger ── */
+a {
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-color: var(--marking);
+  text-underline-offset: 2px;
+}
+
+a:hover {
+  text-decoration-color: currentColor;
+}
+
+:focus-visible {
+  outline: 2px solid var(--asphalt);
+  outline-offset: 2px;
+}
+
+/* ── Layout: panel till vänster, karta till höger ── */
 .app {
   display: flex;
   height: 100vh;
   width: 100vw;
 }
 
-/* ── Sidofält ── */
 .sidebar {
-  width: 320px;
-  min-width: 320px;
-  background: var(--sidebar-bg);
-  border-right: 1px solid var(--border);
+  width: 344px;
+  min-width: 344px;
+  background: var(--snow);
+  border-right: 1px solid var(--marking);
   display: flex;
   flex-direction: column;
-  padding: 28px 20px;
+  padding: 32px 24px 20px;
   overflow-y: auto;
   z-index: 100;
   order: -1;
@@ -62,136 +80,171 @@ body {
   margin-bottom: 28px;
 }
 
-.sidebar-header h1 {
-  font-size: 1.5rem;
-  font-weight: 700;
-  letter-spacing: -0.03em;
-  color: var(--text);
+.sidebar-header h1,
+.mobile-header h1 {
+  font-family: var(--font-narrow);
+  font-weight: 600;
+  font-size: 2.25rem;
+  line-height: 1;
+  letter-spacing: -0.01em;
 }
 
 .subtitle {
-  font-size: 0.8rem;
-  color: var(--text-muted);
-  margin-top: 4px;
+  margin-top: 8px;
+  color: var(--gravel);
+  font-size: 0.95rem;
+  max-width: 26ch;
 }
 
-/* ── Söksektion ── */
+/* ── Sök: start och mål sitter på samma linje, som hållplatser ── */
 .search-section {
+  margin-bottom: 24px;
+}
+
+.stops {
+  position: relative;
   display: flex;
   flex-direction: column;
+  gap: 12px;
   margin-bottom: 16px;
 }
 
-.route-arrow {
-  text-align: center;
-  color: var(--text-muted);
-  font-size: 1.1rem;
-  line-height: 1;
-  margin: 4px 0;
+/* Linjen mellan start- och målmarkören */
+.stops::before {
+  content: "";
+  position: absolute;
+  left: 6px;
+  top: 45px;
+  bottom: 21px;
+  border-left: 2px dotted var(--gravel);
 }
 
-/* ── AddressSearch ── */
 .address-search {
   position: relative;
+  padding-left: 26px;
+}
+
+.address-search::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 38px;
+  width: 14px;
+  height: 14px;
+  background: var(--snow);
+  border: 3px solid var(--asphalt);
+  border-radius: 50%;
+  z-index: 1;
+}
+
+.address-search.marker-end::before {
+  background: var(--asphalt);
+  border-radius: 2px;
 }
 
 .address-search label {
   display: block;
-  font-size: 0.7rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: var(--text-muted);
-  margin-bottom: 5px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  line-height: 1.25rem;
+  color: var(--asphalt-soft);
+  margin-bottom: 4px;
 }
 
 .address-search input {
   width: 100%;
-  background: var(--bg);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 10px 12px;
-  color: var(--text);
-  font-size: 0.9rem;
-  outline: none;
-  transition: border-color 0.15s;
+  height: 42px;
+  background: var(--snow);
+  border: 1px solid #BFC3C7;
+  border-radius: 4px;
+  padding: 0 12px;
+  color: var(--asphalt);
+  font: inherit;
+  font-size: 1rem;
+}
+
+.address-search input:hover {
+  border-color: var(--gravel);
 }
 
 .address-search input:focus {
-  border-color: var(--accent);
+  outline: 2px solid var(--asphalt);
+  outline-offset: -1px;
+  border-color: var(--asphalt);
 }
 
 .address-search input::placeholder {
-  color: var(--text-muted);
+  color: #9298A0;
 }
 
 .suggestions {
   position: absolute;
   top: calc(100% + 4px);
-  left: 0;
+  left: 26px;
   right: 0;
-  background: #1e2535;
-  border: 1px solid var(--border);
-  border-radius: 8px;
+  background: var(--snow);
+  border: 1px solid var(--asphalt);
+  border-radius: 4px;
   z-index: 9999;
   overflow: hidden;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 10px 24px -10px rgba(42, 45, 48, 0.45);
 }
 
 .suggestions li {
   list-style: none;
   padding: 9px 12px;
-  font-size: 0.82rem;
-  color: var(--text);
+  font-size: 0.9rem;
+  line-height: 1.35;
   cursor: pointer;
-  border-bottom: 1px solid var(--border);
-  transition: background 0.1s;
-  line-height: 1.4;
 }
 
-.suggestions li:last-child {
-  border-bottom: none;
+.suggestions li + li {
+  border-top: 1px solid var(--frost);
 }
 
-.suggestions li:hover {
-  background: #252d3d;
+.suggestions li.is-highlighted {
+  background: var(--frost);
+  box-shadow: inset 3px 0 0 var(--asphalt);
 }
 
-/* ── Knapp ── */
+/* ── Knapp: gul som en varningsskylt ── */
 .search-btn {
   width: 100%;
-  padding: 11px;
-  background: var(--accent);
-  color: white;
+  height: 46px;
+  background: var(--sign-yellow);
+  color: var(--asphalt);
   border: none;
-  border-radius: 8px;
-  font-size: 0.9rem;
+  border-radius: 4px;
+  font: inherit;
+  font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  transition: background 0.15s, opacity 0.15s;
-  margin-bottom: 16px;
+  gap: 10px;
 }
 
 .search-btn:hover:not(:disabled) {
-  background: var(--accent-hover);
+  background: var(--sign-yellow-hover);
+}
+
+.search-btn:active:not(:disabled) {
+  transform: translateY(1px);
 }
 
 .search-btn:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
+  cursor: progress;
+  background: #F7D27A;
 }
 
 .spinner {
   width: 14px;
   height: 14px;
-  border: 2px solid rgba(255,255,255,0.3);
-  border-top-color: white;
+  border: 2px solid rgba(42, 45, 48, 0.25);
+  border-top-color: var(--asphalt);
   border-radius: 50%;
-  animation: spin 0.7s linear infinite;
+  animation: spin 0.8s linear infinite;
   flex-shrink: 0;
 }
 
@@ -199,88 +252,208 @@ body {
   to { transform: rotate(360deg); }
 }
 
-/* ── Felmeddelande ── */
-.error-box {
-  background: var(--error-bg);
-  border: 1px solid var(--error-border);
-  border-radius: 8px;
-  padding: 10px 12px;
-  font-size: 0.82rem;
-  color: var(--error-text);
+/* ── Fel ── */
+.error {
   display: flex;
-  gap: 8px;
+  gap: 10px;
   align-items: flex-start;
-  line-height: 1.5;
-  margin-bottom: 16px;
+  font-size: 0.9rem;
+  line-height: 1.4;
+  margin: -8px 0 24px;
 }
 
-.error-icon {
+.error .warning-sign {
   flex-shrink: 0;
+  margin-top: 1px;
 }
 
-/* ── Legend ── */
-.legend {
-  padding-top: 20px;
-  border-top: 1px solid var(--border);
+/* ── Längs vägen ── */
+.route-summary {
+  margin-bottom: 28px;
 }
 
-.legend-title {
-  font-size: 0.7rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: var(--text-muted);
+.summary-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
   margin-bottom: 10px;
 }
 
-.legend-item {
+.summary-head h2,
+.legend-title {
+  font-family: var(--font-narrow);
+  font-weight: 600;
+  font-size: 1.25rem;
+  line-height: 1.2;
+}
+
+.summary-total {
+  font-family: var(--font-narrow);
+  font-weight: 500;
+  font-size: 1.25rem;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Rutten uträtad: en väg från start till mål */
+.strip {
+  display: flex;
+  height: 12px;
+  border-radius: 6px;
+  overflow: hidden;
+  background: var(--marking);
+  outline: 1.5px solid var(--asphalt);
+  outline-offset: 1px;
+}
+
+.strip-part {
+  flex-basis: 0;
+  min-width: 1px;
+}
+
+.strip-ends {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 6px;
+  font-size: 0.8rem;
+  color: var(--gravel);
+}
+
+.coverage,
+.all-clear {
+  margin-top: 14px;
+  font-size: 0.875rem;
+  color: var(--gravel);
+}
+
+.all-clear {
+  color: var(--asphalt);
+  font-weight: 500;
+}
+
+/* Varningar i ordning längs rutten, ritade som en linjekarta */
+.stretches {
+  list-style: none;
+  position: relative;
+  margin-top: 16px;
+}
+
+.stretches::before {
+  content: "";
+  position: absolute;
+  top: 4px;
+  bottom: 4px;
+  left: calc(5.75rem + 5px);
+  border-left: 2px solid var(--marking);
+}
+
+.stretch {
+  position: relative;
+  display: grid;
+  grid-template-columns: 5.75rem 12px 1fr;
+  column-gap: 12px;
+  align-items: stretch;
+  width: 100%;
+  padding: 7px 0;
+  background: none;
+  border: none;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.stretch-km {
+  font-family: var(--font-narrow);
+  font-weight: 500;
+  font-size: 0.95rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--asphalt-soft);
+  padding-top: 1px;
+  white-space: nowrap;
+}
+
+.stretch-mark {
+  justify-self: center;
+  width: 6px;
+  min-height: 22px;
+  border-radius: 3px;
+  background: var(--c);
+  box-shadow: 0 0 0 2px var(--snow);
+  transition: width 0.12s;
+}
+
+.stretch-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.stretch-label {
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.stretch-place {
+  font-size: 0.875rem;
+  color: var(--gravel);
+  line-height: 1.35;
+}
+
+.stretch:hover .stretch-label {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.stretch:hover .stretch-mark,
+.stretch.is-active .stretch-mark {
+  width: 12px;
+  border-radius: 6px;
+}
+
+.stretch.is-active .stretch-km {
+  color: var(--asphalt);
+  font-weight: 600;
+}
+
+/* ── Teckenförklaring: linjer, eftersom kartan visar linjer ── */
+.legend ul {
+  list-style: none;
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.legend li {
   display: flex;
   align-items: center;
-  gap: 10px;
-  font-size: 0.82rem;
-  color: var(--text);
-  margin-bottom: 7px;
+  gap: 12px;
+  font-size: 0.9rem;
 }
 
-.legend-hint {
-  font-size: 0.75rem;
-  color: var(--text-muted);
-  margin-top: 10px;
-  font-style: italic;
-}
-
-.dot {
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
+.line-swatch {
+  display: inline-block;
+  width: 28px;
+  height: 6px;
+  border-radius: 3px;
+  background: var(--c);
+  box-shadow: 0 0 0 1.5px rgba(42, 45, 48, 0.55);
   flex-shrink: 0;
 }
 
-.dot.green  { background: var(--green); }
-.dot.yellow { background: var(--yellow); }
-.dot.red    { background: var(--red); }
-.dot.blue   { background: var(--blue); }
-.dot.black  { background: var(--black); }
-
-/* ── Footer ── */
+/* ── Sidfot ── */
 .sidebar-footer {
   margin-top: auto;
-  padding-top: 20px;
-  border-top: 1px solid var(--border);
+  padding-top: 28px;
+  font-size: 0.8rem;
+  color: var(--gravel);
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  font-size: 0.78rem;
-  color: var(--text-muted);
+  gap: 6px;
 }
 
-.sidebar-footer a {
-  color: var(--accent);
-  text-decoration: none;
-}
-
-.sidebar-footer a:hover {
-  text-decoration: underline;
+.signoff {
+  color: var(--asphalt-soft);
 }
 
 /* ── Karta ── */
@@ -290,25 +463,162 @@ body {
   overflow: hidden;
 }
 
-/* Legend som overlay på kartan (mobil) */
-.map-legend {
-  display: none;
+/* Gråskalig bakgrundskarta så att väglagsfärgerna är det enda som syns */
+.leaflet-tile-pane {
+  filter: grayscale(1) contrast(0.9) brightness(1.05);
 }
 
-/* Mobilrubrik – dold på desktop */
+.leaflet-container {
+  background: var(--frost);
+  font-family: var(--font);
+}
+
+.leaflet-bar {
+  border: 1px solid var(--asphalt) !important;
+  border-radius: 4px !important;
+  box-shadow: none !important;
+}
+
+.leaflet-bar a {
+  color: var(--asphalt) !important;
+  border-bottom-color: var(--marking) !important;
+}
+
+.route-line.is-clickable {
+  cursor: pointer;
+}
+
+/* ── Popup för vald sträcka ── */
+.segment-popup {
+  position: absolute;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(420px, calc(100% - 32px));
+  background: var(--snow);
+  border: 1px solid var(--asphalt);
+  border-radius: 6px;
+  padding: 16px 18px 14px;
+  z-index: 1000;
+  box-shadow: 0 14px 30px -12px rgba(42, 45, 48, 0.5);
+}
+
+.popup-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.popup-head h3 {
+  flex: 1;
+  font-family: var(--font-narrow);
+  font-weight: 600;
+  font-size: 1.25rem;
+  line-height: 1.2;
+}
+
+.popup-close {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  margin: -6px -8px -6px 0;
+  background: none;
+  border: none;
+  border-radius: 4px;
+  color: var(--asphalt-soft);
+  cursor: pointer;
+}
+
+.popup-close:hover {
+  background: var(--frost);
+  color: var(--asphalt);
+}
+
+.popup-place {
+  margin-top: 10px;
+  font-weight: 600;
+}
+
+.popup-km {
+  font-size: 0.85rem;
+  color: var(--gravel);
+  font-variant-numeric: tabular-nums;
+}
+
+.popup-desc {
+  margin-top: 10px;
+  font-size: 0.95rem;
+  max-width: 60ch;
+}
+
+.popup-warnings {
+  list-style: none;
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.popup-warnings li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.popup-measure {
+  margin-top: 10px;
+  font-size: 0.95rem;
+}
+
+.popup-meta {
+  margin-top: 14px;
+  padding-top: 10px;
+  border-top: 1px solid var(--marking);
+  font-size: 0.8rem;
+  display: grid;
+  gap: 2px;
+}
+
+.popup-meta div {
+  display: grid;
+  grid-template-columns: 6rem 1fr;
+}
+
+.popup-meta dt {
+  color: var(--gravel);
+}
+
+.popup-meta dd {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Legend på kartan visas bara på mobil */
+.map-legend,
 .mobile-header {
   display: none;
 }
 
-/* Desktop: legend i sidofältet, ej på kartan */
 .desktop-legend {
   display: block;
 }
 
-/* ── Mobilanpassning ── */
+@media (prefers-reduced-motion: reduce) {
+  .spinner { animation-duration: 2.4s; }
+  .stretch-mark { transition: none; }
+}
+
+/* ── Mobil ── */
 @media (max-width: 640px) {
   body {
     overflow: auto;
+    height: auto;
+  }
+
+  #root {
+    height: auto;
   }
 
   .app {
@@ -317,88 +627,93 @@ body {
     min-height: 100vh;
   }
 
-  /* Rubrik högst upp */
   .mobile-header {
     display: block;
-    background: var(--sidebar-bg);
-    border-bottom: 1px solid var(--border);
-    padding: 16px 16px 12px;
+    background: var(--snow);
+    border-bottom: 1px solid var(--marking);
+    padding: 16px 16px 14px;
   }
 
   .mobile-header h1 {
-    font-size: 1.3rem;
-    font-weight: 700;
-    letter-spacing: -0.03em;
+    font-size: 1.75rem;
   }
 
-  /* Karta direkt under rubriken */
   .map-wrapper {
     height: 55vmax;
     min-height: 260px;
     width: 100%;
     order: 0;
+    flex: none;
   }
 
-  /* Legend som overlay längst ner på kartan */
   .map-legend {
     display: block;
     position: absolute;
     bottom: 0;
     left: 0;
     right: 0;
-    background: rgba(22, 27, 39, 0.92);
-    backdrop-filter: blur(6px);
-    border-top: 1px solid var(--border);
-    padding: 10px 14px;
+    background: rgba(255, 255, 255, 0.94);
+    border-top: 1px solid var(--marking);
+    padding: 10px 14px 12px;
     z-index: 500;
   }
 
-  .map-legend .legend {
-    border-top: none;
-    padding-top: 0;
-    display: flex;
+  .map-legend .legend-title {
+    display: none;
+  }
+
+  .map-legend .legend ul {
+    flex-direction: row;
     flex-wrap: wrap;
     gap: 6px 14px;
+    margin-top: 0;
   }
 
-  .map-legend .legend-title {
-    width: 100%;
-    margin-bottom: 6px;
+  .map-legend .legend li {
+    font-size: 0.8rem;
+    gap: 6px;
   }
 
-  .map-legend .legend-hint {
-    width: 100%;
+  .map-legend .line-swatch {
+    width: 18px;
   }
 
-  /* Sökpanel under kartan */
+  /* Ark i nederkant: syns även när man valt sträcka i listan under kartan */
+  .segment-popup {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: auto;
+    transform: none;
+    max-height: 70vh;
+    overflow-y: auto;
+    border-width: 1px 0 0;
+    border-radius: 10px 10px 0 0;
+    padding-bottom: calc(14px + env(safe-area-inset-bottom));
+    box-shadow: 0 -10px 30px -12px rgba(42, 45, 48, 0.45);
+  }
+
   .sidebar {
     width: 100%;
     min-width: 0;
     border-right: none;
-    border-top: 1px solid var(--border);
-    padding: 16px;
+    padding: 20px 16px;
     order: 1;
     overflow: visible;
   }
 
-  /* Dölj rubriken i sidofältet på mobil (visas i mobile-header istället) */
-  .sidebar-header {
-    display: none;
-  }
-
-  /* Dölj legend i sidofältet på mobil (visas på kartan istället) */
+  .sidebar-header,
   .desktop-legend {
     display: none;
   }
 
   .sidebar-footer {
-    margin-top: 16px;
+    margin-top: 8px;
   }
-}
 
-@media (max-width: 640px) {
   .leaflet-container {
     position: absolute !important;
-    top: 0; left: 0; right: 0; bottom: 0;
+    inset: 0;
   }
 }

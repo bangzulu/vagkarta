@@ -1,14 +1,9 @@
+import { Fragment } from "react";
 import { Polyline } from "react-leaflet";
+import { conditionFor } from "../conditions";
 
-const COLOR_MAP = {
-  red:    "#ef4444",
-  orange: "#f97316",
-  yellow: "#eab308",
-  green:  "#22c55e",
-  black:  "#34373c",
-};
-
-export default function TrafficLayer({ segments, onSegmentClick }) {
+// Ritar rutten som en väg på en karta: mörk kantlinje under, väglagsfärg ovanpå.
+export default function TrafficLayer({ segments, activeIds = [], onSegmentClick }) {
   if (!Array.isArray(segments) || segments.length === 0) return null;
 
   return (
@@ -17,30 +12,45 @@ export default function TrafficLayer({ segments, onSegmentClick }) {
         if (!segment?.coordinates) return null;
 
         const latLngs = segment.coordinates.map(([lon, lat]) => [lat, lon]);
-        const color = COLOR_MAP[segment.color] ?? COLOR_MAP.green;
-        const isClickable = segment.color !== "green" && segment.info;
+        const { color, warning } = conditionFor(segment.color);
+        const clickable = warning && segment.info;
+        const active = activeIds.includes(segment.id);
+        const weight = active ? 9 : clickable ? 6 : 4;
+
+        const handlers = clickable
+          ? {
+              click: () => onSegmentClick(segment),
+              mouseover: (e) => e.target.setStyle({ weight: weight + 2 }),
+              mouseout: (e) => e.target.setStyle({ weight }),
+            }
+          : {};
 
         return (
-          <Polyline
-            key={segment.id}
-            positions={latLngs}
-            pathOptions={{
-              color,
-              weight: isClickable ? 7 : 5,
-              opacity: 0.9,
-              lineCap: "round",
-              lineJoin: "round",
-            }}
-            eventHandlers={
-              isClickable
-                ? {
-                    click: () => onSegmentClick(segment),
-                    mouseover: (e) => e.target.setStyle({ weight: 10, opacity: 1 }),
-                    mouseout:  (e) => e.target.setStyle({ weight: 7, opacity: 0.9 }),
-                  }
-                : {}
-            }
-          />
+          <Fragment key={segment.id}>
+            <Polyline
+              positions={latLngs}
+              interactive={false}
+              pathOptions={{
+                color: "#2A2D30",
+                weight: weight + 3,
+                opacity: active ? 0.9 : 0.55,
+                lineCap: "round",
+                lineJoin: "round",
+              }}
+            />
+            <Polyline
+              positions={latLngs}
+              pathOptions={{
+                color,
+                weight,
+                opacity: 1,
+                lineCap: "round",
+                lineJoin: "round",
+                className: clickable ? "route-line is-clickable" : "route-line",
+              }}
+              eventHandlers={handlers}
+            />
+          </Fragment>
         );
       })}
     </>

@@ -1,123 +1,162 @@
-import { useState } from "react";
+import { useMemo, useState, useCallback } from "react";
 import { MapContainer, TileLayer } from "react-leaflet";
 import { checkRoute } from "./services/api";
 import TrafficLayer from "./components/TrafficLayer";
 import AddressSearch from "./components/AddressSearch";
 import FitBounds from "./components/FitBounds";
+import FocusSegment from "./components/FocusSegment";
 import SegmentPopup from "./components/SegmentPopup";
+import RouteSummary from "./components/RouteSummary";
+import WarningSign from "./components/WarningSign";
+import { CONDITIONS, LEGEND_ORDER, withDistances, warningStretches } from "./conditions";
 import "./App.css";
+
+function Legend() {
+  return (
+    <div className="legend">
+      <h2 className="legend-title">Teckenförklaring</h2>
+      <ul>
+        {LEGEND_ORDER.map((key) => (
+          <li key={key}>
+            <span className="line-swatch" style={{ "--c": CONDITIONS[key].color }} />
+            {CONDITIONS[key].label}
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
 
 export default function App() {
   const [from, setFrom] = useState(null);
   const [to, setTo] = useState(null);
-  const [segments, setSegments] = useState([]);
+  const [rawSegments, setRawSegments] = useState([]);
   const [route, setRoute] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [activeSegment, setActiveSegment] = useState(null);
+  const [activeStretch, setActiveStretch] = useState(null);
 
-  async function search() {
+  const segments = useMemo(() => withDistances(rawSegments), [rawSegments]);
+  const stretches = useMemo(() => warningStretches(segments), [segments]);
+  const totalKm = segments.at(-1)?.endKm ?? 0;
+
+  async function search(e) {
+    e.preventDefault();
     if (!from || !to) {
-      setError("Välj både från- och till-adress.");
+      setError("Välj både start och mål i förslagslistan.");
       return;
     }
 
     setLoading(true);
     setError(null);
-    setSegments([]);
+    setRawSegments([]);
     setRoute(null);
-    setActiveSegment(null);
+    setActiveStretch(null);
 
     try {
       const result = await checkRoute(from, to);
-      setSegments(result.segments ?? []);
+      setRawSegments(result.segments ?? []);
       setRoute(result.route ?? null);
     } catch (err) {
       console.error("Route check failed:", err);
-      setError("Kunde inte hämta rutten. Kontrollera att backend och OSRM kör.");
+      setError("Rutten gick inte att hämta. Kontrollera att backend kör och försök igen.");
     } finally {
       setLoading(false);
     }
   }
 
+  const selectFromMap = useCallback(
+    (segment) => setActiveStretch(stretches.find((st) => st.segmentIds.includes(segment.id)) ?? null),
+    [stretches]
+  );
+  const closePopup = useCallback(() => setActiveStretch(null), []);
+
+  const hasRoute = segments.length > 0 && !loading;
+
   return (
     <div className="app">
-      <div className="sidebar">
+      <header className="mobile-header">
+        <h1>Hur är vägen?</h1>
+      </header>
+
+      <aside className="sidebar">
         <div className="sidebar-header">
           <h1>Hur är vägen?</h1>
-          <p className="subtitle">Kolla vägförhållanden längs din rutt</p>
+          <p className="subtitle">Väglaget längs din rutt, direkt från Trafikverket.</p>
         </div>
 
-        <div className="search-section">
-          <AddressSearch label="Från" onSelect={setFrom} />
-          <div className="route-arrow">↓</div>
-          <AddressSearch label="Till" onSelect={setTo} />
-        </div>
+        <form className="search-section" onSubmit={search}>
+          <div className="stops">
+            <AddressSearch label="Från" placeholder="Var startar du?" marker="start" onSelect={setFrom} />
+            <AddressSearch label="Till" placeholder="Vart ska du?" marker="end" onSelect={setTo} />
+          </div>
 
-        <button
-          className={`search-btn ${loading ? "loading" : ""}`}
-          onClick={search}
-          disabled={loading}
-        >
-          {loading ? (
-            <>
-              <span className="spinner" />
-              Hämtar rutt…
-            </>
-          ) : (
-            "Sök rutt"
-          )}
-        </button>
+          <button type="submit" className="search-btn" disabled={loading}>
+            {loading ? (
+              <>
+                <span className="spinner" aria-hidden="true" />
+                Hämtar väglag…
+              </>
+            ) : (
+              "Visa väglaget"
+            )}
+          </button>
+        </form>
 
         {error && (
-          <div className="error-box">
-            <span className="error-icon">⚠️</span>
+          <p className="error" role="alert">
+            <WarningSign size={18} />
             {error}
-          </div>
+          </p>
         )}
 
-        {segments.length > 0 && !loading && (
-          <div className="legend">
-            <p className="legend-title">Vägförhållanden</p>
-            <div className="legend-item"><span className="dot green" />Normalt</div>
-            <div className="legend-item"><span className="dot yellow" />Risk för besvärlig väglag</div>
-            <div className="legend-item"><span className="dot red" />Besvärligt väglag</div>
-            <div className="legend-item"><span className="dot blue" />Snö och isvägbana</div>
-            <div className="legend-item"><span className="dot black" />Ingen data</div>
-            <p className="legend-hint">Klicka på en markerad sträcka för mer info</p>
-          </div>
+        {hasRoute && (
+          <RouteSummary
+            segments={segments}
+            stretches={stretches}
+            activeStretch={activeStretch}
+            onSelect={setActiveStretch}
+          />
         )}
-        <div className="sidebar-footer">
-          <a href="https://github.com/bangzulu/vagkarta" target="_blank" rel="noreferrer">GitHub</a>
-          <a href="https://data.trafikverket.se/documentation/datacache/data-model" target="_blank" rel="noreferrer">Trafikverkets API</a>
-          <p>Kör lugnt! ❄️ /Oskar Z</p>
+
+        <div className="desktop-legend">
+          <Legend />
         </div>
-      </div>
 
-      <div className="map-wrapper">
-        <MapContainer
-          center={[62.0, 15.0]}
-          zoom={5}
-          style={{ height: "100%", width: "100%" }}
-        >
+        <footer className="sidebar-footer">
+          <p>
+            Data från <a href="https://data.trafikverket.se/documentation/datacache/data-model" target="_blank" rel="noreferrer">Trafikverkets öppna API</a>.
+            Koden finns på <a href="https://github.com/bangzulu/vagkarta" target="_blank" rel="noreferrer">GitHub</a>.
+          </p>
+          <p className="signoff">Kör lugnt. /Oskar Z</p>
+        </footer>
+      </aside>
+
+      <main className="map-wrapper">
+        <MapContainer center={[62.0, 15.0]} zoom={5} style={{ height: "100%", width: "100%" }}>
           <TileLayer
             attribution="© OpenStreetMap contributors"
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           />
           <TrafficLayer
             segments={segments}
-            onSegmentClick={setActiveSegment}
+            activeIds={activeStretch?.segmentIds}
+            onSegmentClick={selectFromMap}
           />
           {route && <FitBounds route={route} />}
+          <FocusSegment stretch={activeStretch} segments={segments} />
         </MapContainer>
 
-        {activeSegment && (
-          <SegmentPopup
-            segment={activeSegment}
-            onClose={() => setActiveSegment(null)}
-          />
+        {hasRoute && (
+          <div className="map-legend">
+            <Legend />
+          </div>
         )}
-      </div>
+
+        {activeStretch && (
+          <SegmentPopup stretch={activeStretch} totalKm={totalKm} onClose={closePopup} />
+        )}
+      </main>
     </div>
   );
 }

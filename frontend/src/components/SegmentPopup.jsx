@@ -1,138 +1,80 @@
-const COLOR_META = {
-  red:    { dot: "#ef4444", label: "Mycket besvärligt", bg: "#2a1215", border: "#7f1d1d" },
-  orange: { dot: "#f97316", label: "Besvärligt",        bg: "#2a1a0e", border: "#7c2d12" },
-  yellow: { dot: "#eab308", label: "Något besvärligt",  bg: "#2a2008", border: "#78350f" },
-  green:  { dot: "#22c55e", label: "Normalt",           bg: "#0f2a18", border: "#14532d" },
-};
+import { useEffect, useRef } from "react";
+import { conditionFor, formatKm } from "../conditions";
+import WarningSign from "./WarningSign";
 
-export default function SegmentPopup({ segment, onClose }) {
-  if (!segment?.info) return null;
+export default function SegmentPopup({ stretch, totalKm, onClose }) {
+  const closeRef = useRef(null);
 
-  const { info, color } = segment;
-  const meta = COLOR_META[color] ?? COLOR_META.green;
+  useEffect(() => {
+    closeRef.current?.focus();
+    const onKey = (e) => e.key === "Escape" && onClose();
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [stretch, onClose]);
 
-  // Bästa tillgängliga beskrivning
+  if (!stretch?.info) return null;
+
+  const { info } = stretch;
+  const cond = conditionFor(stretch.color);
+
   const description =
-    info.conditionInfo?.length > 0
-      ? info.conditionInfo.join(", ")
-      : info.conditionText;
-
-  const warnings = info.warning?.length > 0 ? info.warning : [];
-  const measures = info.measure?.length > 0 ? info.measure.join(" / ") : null;
+    info.conditionInfo?.length > 0 ? info.conditionInfo.join(", ") : info.conditionText;
+  const place = [info.roadNumber, info.locationText].filter(Boolean).join(", ");
+  const warnings = info.warning ?? [];
+  const measures = info.measure?.length > 0 ? info.measure.join(", ") : null;
 
   return (
-    <div style={{
-      position: "absolute",
-      bottom: 24,
-      left: "50%",
-      transform: "translateX(-50%)",
-      width: "min(440px, calc(100vw - 48px))",
-      background: "#161b27",
-      border: `1px solid ${meta.border}`,
-      borderRadius: 12,
-      padding: "16px 18px",
-      zIndex: 1000,
-      boxShadow: "0 8px 32px rgba(0,0,0,0.5)",
-      cursor: "default",
-    }}>
-
-      {/* Header: färgprick + status + stäng */}
-      <div style={{
-        display: "flex", alignItems: "center",
-        justifyContent: "space-between", marginBottom: 12,
-      }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <span style={{
-            width: 14, height: 14, borderRadius: "50%",
-            background: meta.dot, flexShrink: 0, display: "inline-block",
-          }} />
-          <span style={{ fontWeight: 700, fontSize: "0.95rem", color: "#e8edf5" }}>
-            {meta.label}
-          </span>
-        </div>
-        <button onClick={onClose} style={{
-          background: "none", border: "none", color: "#6b7a99",
-          fontSize: "1.1rem", cursor: "pointer", lineHeight: 1, padding: "0 2px",
-        }}>✕</button>
+    <div className="segment-popup" role="dialog" aria-labelledby="popup-title">
+      <div className="popup-head">
+        <span className="line-swatch" style={{ "--c": cond.color }} aria-hidden="true" />
+        <h3 id="popup-title">{cond.label}</h3>
+        <button ref={closeRef} className="popup-close" onClick={onClose} aria-label="Stäng">
+          <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true">
+            <path d="M2 2l10 10M12 2L2 12" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+          </svg>
+        </button>
       </div>
 
-      {/* Vägnummer + sträcka */}
-      {(info.roadNumber || info.locationText) && (
-        <div style={{ fontWeight: 700, fontSize: "0.9rem", color: "#e8edf5", marginBottom: 8 }}>
-          {[info.roadNumber, info.locationText].filter(Boolean).join(" – ")}
-        </div>
-      )}
+      {place && <p className="popup-place">{place}</p>}
+      <p className="popup-km">
+        Vid {formatKm(stretch.startKm, totalKm)}–{formatKm(stretch.endKm, totalKm)} km av{" "}
+        {formatKm(totalKm)}
+      </p>
 
-      {/* Väglagsbeskrivning */}
-      {description && (
-        <div style={{
-          fontSize: "0.85rem", color: "#c0c8d8",
-          marginBottom: 10, lineHeight: 1.5,
-        }}>
-          {description}
-        </div>
-      )}
+      {description && <p className="popup-desc">{description}</p>}
 
-      {/* Varningar som pills */}
       {warnings.length > 0 && (
-        <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 10 }}>
+        <ul className="popup-warnings">
           {warnings.map((w, i) => (
-            <span key={i} style={{
-              background: meta.bg,
-              border: `1px solid ${meta.border}`,
-              borderRadius: 6,
-              padding: "3px 10px",
-              fontSize: "0.78rem",
-              color: "#e8edf5",
-              fontWeight: 600,
-            }}>
+            <li key={i}>
+              <WarningSign size={16} />
               {w}
-            </span>
+            </li>
           ))}
-        </div>
+        </ul>
       )}
 
-      {/* Åtgärd */}
-      {measures && (
-        <div style={{
-          background: "#1e2535",
-          borderRadius: 8,
-          padding: "8px 12px",
-          fontSize: "0.82rem",
-          color: "#e8edf5",
-          marginBottom: 12,
-          fontWeight: 500,
-        }}>
-          {measures}
-        </div>
+      {measures && <p className="popup-measure">Åtgärd: {measures}</p>}
+
+      {(info.modifiedTime || info.startTime) && (
+        <dl className="popup-meta">
+          {info.modifiedTime && (
+            <div>
+              <dt>Uppdaterat</dt>
+              <dd>{info.modifiedTime}</dd>
+            </div>
+          )}
+          {info.startTime && (
+            <div>
+              <dt>Gäller</dt>
+              <dd>
+                {info.startTime}
+                {info.endTime ? ` till ${info.endTime}` : ""}
+              </dd>
+            </div>
+          )}
+        </dl>
       )}
-
-      {/* Meta-rad: uppdaterat + giltighetstid */}
-      <div style={{
-        borderTop: "1px solid #252d3d",
-        paddingTop: 10,
-        display: "grid",
-        gridTemplateColumns: "auto 1fr",
-        rowGap: 4,
-        columnGap: 12,
-        fontSize: "0.78rem",
-      }}>
-        {info.modifiedTime && (
-          <>
-            <span style={{ fontWeight: 600, color: "#8b9ab8" }}>Uppdaterat</span>
-            <span style={{ color: "#c0c8d8" }}>{info.modifiedTime}</span>
-          </>
-        )}
-        {info.startTime && (
-          <>
-            <span style={{ fontWeight: 600, color: "#8b9ab8" }}>Gäller</span>
-            <span style={{ color: "#c0c8d8" }}>
-              {info.startTime}{info.endTime ? ` – ${info.endTime}` : ""}
-            </span>
-          </>
-        )}
-      </div>
-
     </div>
   );
 }
