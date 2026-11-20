@@ -6,7 +6,7 @@ export const CONDITIONS = {
   yellow: { label: "Risk för besvärligt väglag", color: "#E5A100", dark: "#F5BE2A", warning: true },
   red:    { label: "Besvärligt väglag",          color: "#C8102E", dark: "#F04A5C", warning: true },
   blue:   { label: "Is- och snövägbana",         color: "#2E68B1", dark: "#5A9BEA", warning: true },
-  black:  { label: "Ingen uppgift",              color: "#A7ACB1", dark: "#6A7077", warning: false },
+  black:  { label: "Ingen uppgift",              color: "#A7ACB1", dark: "#9AA0A6", warning: false },
 };
 
 export const LEGEND_ORDER = ["green", "yellow", "red", "blue", "black"];

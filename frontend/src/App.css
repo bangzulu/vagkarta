@@ -25,9 +25,9 @@
   --map-bg: #E9ECEE;
   --legend-overlay: rgba(255, 255, 255, 0.94);
 
-  /* Bakgrundskartan: gråskala med låg kontrast så detaljerna träder tillbaka */
-  --map-filter: grayscale(1) contrast(0.8) brightness(1.08);
-  --map-opacity: 0.75;
+  /* Bakgrundskartan: jämn gråskala, dämpad kontrast men läsbara ortnamn */
+  --map-filter: grayscale(1) contrast(0.65) brightness(1.1);
+  --map-opacity: 1;
 
   color-scheme: light dark;
 
@@ -56,9 +56,9 @@
     --map-bg: #0E0E0E;
     --legend-overlay: rgba(28, 30, 33, 0.94);
 
-    /* Inverterad gråskala med en svag blå ton, nedtonad mot mörk bakgrund */
-    --map-filter: grayscale(1) invert(1) sepia(0.25) hue-rotate(180deg) contrast(0.85) brightness(0.9);
-    --map-opacity: 0.6;
+    /* Inverterad gråskala; låg kontrast plattar ut skog och mark, ortnamnen blir ljusa */
+    --map-filter: grayscale(1) invert(1) contrast(0.6) brightness(1.1);
+    --map-opacity: 1;
   }
 
   .address-search input {
