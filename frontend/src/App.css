@@ -25,6 +25,10 @@
   --map-bg: #E9ECEE;
   --legend-overlay: rgba(255, 255, 255, 0.94);
 
+  /* Bakgrundskartan: gråskala med låg kontrast så detaljerna träder tillbaka */
+  --map-filter: grayscale(1) contrast(0.8) brightness(1.08);
+  --map-opacity: 0.75;
+
   color-scheme: light dark;
 
   --font: "Barlow", system-ui, sans-serif;
@@ -51,6 +55,10 @@
     --swatch-edge: rgba(0, 0, 0, 0.7);
     --map-bg: #0E0E0E;
     --legend-overlay: rgba(28, 30, 33, 0.94);
+
+    /* Inverterad gråskala med en svag blå ton, nedtonad mot mörk bakgrund */
+    --map-filter: grayscale(1) invert(1) sepia(0.25) hue-rotate(180deg) contrast(0.85) brightness(0.9);
+    --map-opacity: 0.6;
   }
 
   .address-search input {
@@ -500,7 +508,13 @@ a:hover {
   overflow: hidden;
 }
 
-/* Avskalad bakgrundskarta (CARTO) – väglagsfärgerna ska vara det enda som syns */
+/* Bakgrundskartan tonas ned så att väglagsfärgerna är det enda som syns.
+   Justera --map-filter och --map-opacity i :root för att ändra utseendet. */
+.leaflet-tile-pane {
+  filter: var(--map-filter);
+  opacity: var(--map-opacity);
+}
+
 .map-wrapper .leaflet-container {
   background: var(--map-bg);
   font-family: var(--font);

@@ -138,7 +138,7 @@ export default function App() {
 
       <main className="map-wrapper">
         <MapContainer center={[62.0, 15.0]} zoom={5} style={{ height: "100%", width: "100%" }}>
-          <BaseMap scheme={scheme} />
+          <BaseMap />
           <TrafficLayer
             segments={segments}
             activeIds={activeStretch?.segmentIds}
