@@ -26,7 +26,7 @@
   --legend-overlay: rgba(255, 255, 255, 0.94);
 
   /* Bakgrundskartan: jämn gråskala, dämpad kontrast men läsbara ortnamn */
-  --map-filter: grayscale(1) contrast(0.8) brightness(1.04);
+  --map-filter: grayscale(1) contrast(0.95) brightness(1.06);
   --map-opacity: 1;
 
   color-scheme: light dark;
@@ -57,7 +57,7 @@
     --legend-overlay: rgba(28, 30, 33, 0.94);
 
     /* Inverterad gråskala; låg kontrast plattar ut skog och mark, ortnamnen blir ljusa */
-    --map-filter: grayscale(1) invert(1) contrast(0.85) brightness(0.75);
+    --map-filter: grayscale(1) invert(1) contrast(1.05) brightness(0.85);
     --map-opacity: 1;
   }
 

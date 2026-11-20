@@ -1,4 +1,5 @@
 import { useEffect, useState, useRef, useId } from "react";
+import axios from "axios";
 import { searchAddress } from "../services/geocode";
 
 export default function AddressSearch({ label, placeholder, marker, onSelect }) {
@@ -25,29 +26,33 @@ export default function AddressSearch({ label, placeholder, marker, onSelect }) 
   useEffect(() => {
     clearTimeout(debounceRef.current);
 
+    // Om användaren just valde ett alternativ – skippa sökning
+    if (justSelectedRef.current) {
+      justSelectedRef.current = false;
+      return;
+    }
+
+    if (query.trim().length < 3) return;
+
+    // Avbryt förra förfrågan så att ett gammalt svar aldrig skriver över ett nyare
+    const controller = new AbortController();
+
     debounceRef.current = setTimeout(async () => {
-      // Om användaren just valde ett alternativ – skippa sökning
-      if (justSelectedRef.current) {
-        justSelectedRef.current = false;
-        return;
-      }
-
-      if (query.length < 4) {
-        setResults([]);
-        return;
-      }
-
       try {
-        const res = await searchAddress(query);
+        const res = await searchAddress(query, controller.signal);
         setResults(res);
         setHighlight(-1);
       } catch (err) {
+        if (axios.isCancel(err)) return;
         console.error("Geocode error:", err);
         setResults([]);
       }
-    }, 600);
+    }, 200);
 
-    return () => clearTimeout(debounceRef.current);
+    return () => {
+      clearTimeout(debounceRef.current);
+      controller.abort();
+    };
   }, [query]);
 
   function handleSelect(r) {
@@ -60,6 +65,7 @@ export default function AddressSearch({ label, placeholder, marker, onSelect }) 
 
   function handleChange(e) {
     setQuery(e.target.value);
+    if (e.target.value.trim().length < 3) setResults([]);
     onSelect(null); // texten matchar inte längre den valda platsen
   }
 
