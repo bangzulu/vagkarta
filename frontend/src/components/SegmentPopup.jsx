@@ -2,7 +2,7 @@ import { useEffect, useRef } from "react";
 import { conditionFor, formatKm } from "../conditions";
 import WarningSign from "./WarningSign";
 
-export default function SegmentPopup({ stretch, totalKm, onClose }) {
+export default function SegmentPopup({ stretch, totalKm, onClose, scheme }) {
   const closeRef = useRef(null);
 
   useEffect(() => {
@@ -15,7 +15,7 @@ export default function SegmentPopup({ stretch, totalKm, onClose }) {
   if (!stretch?.info) return null;
 
   const { info } = stretch;
-  const cond = conditionFor(stretch.color);
+  const cond = conditionFor(stretch.color, scheme);
 
   const description =
     info.conditionInfo?.length > 0 ? info.conditionInfo.join(", ") : info.conditionText;

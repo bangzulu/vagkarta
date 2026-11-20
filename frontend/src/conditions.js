@@ -1,17 +1,19 @@
 // En enda källa för hur varje väglag ser ut och heter.
 // Nycklarna matchar det backend skickar (utils/colorRoute.js).
+// `dark` är ljusare toner som syns mot den mörka kartan.
 export const CONDITIONS = {
-  green:  { label: "Normalt",                    color: "#3C8D5A", warning: false },
-  yellow: { label: "Risk för besvärligt väglag", color: "#E5A100", warning: true },
-  red:    { label: "Besvärligt väglag",          color: "#C8102E", warning: true },
-  blue:   { label: "Is- och snövägbana",         color: "#2E68B1", warning: true },
-  black:  { label: "Ingen uppgift",              color: "#A7ACB1", warning: false },
+  green:  { label: "Normalt",                    color: "#3C8D5A", dark: "#4FBF78", warning: false },
+  yellow: { label: "Risk för besvärligt väglag", color: "#E5A100", dark: "#F5BE2A", warning: true },
+  red:    { label: "Besvärligt väglag",          color: "#C8102E", dark: "#F04A5C", warning: true },
+  blue:   { label: "Is- och snövägbana",         color: "#2E68B1", dark: "#5A9BEA", warning: true },
+  black:  { label: "Ingen uppgift",              color: "#A7ACB1", dark: "#6A7077", warning: false },
 };
 
 export const LEGEND_ORDER = ["green", "yellow", "red", "blue", "black"];
 
-export function conditionFor(key) {
-  return CONDITIONS[key] ?? CONDITIONS.black;
+export function conditionFor(key, scheme = "light") {
+  const c = CONDITIONS[key] ?? CONDITIONS.black;
+  return scheme === "dark" ? { ...c, color: c.dark } : c;
 }
 
 // ── Avstånd ──

@@ -3,7 +3,7 @@ import { Polyline } from "react-leaflet";
 import { conditionFor } from "../conditions";
 
 // Ritar rutten som en väg på en karta: mörk kantlinje under, väglagsfärg ovanpå.
-export default function TrafficLayer({ segments, activeIds = [], onSegmentClick }) {
+export default function TrafficLayer({ segments, activeIds = [], onSegmentClick, scheme }) {
   if (!Array.isArray(segments) || segments.length === 0) return null;
 
   return (
@@ -12,7 +12,7 @@ export default function TrafficLayer({ segments, activeIds = [], onSegmentClick 
         if (!segment?.coordinates) return null;
 
         const latLngs = segment.coordinates.map(([lon, lat]) => [lat, lon]);
-        const { color, warning } = conditionFor(segment.color);
+        const { color, warning } = conditionFor(segment.color, scheme);
         const clickable = warning && segment.info;
         const active = activeIds.includes(segment.id);
         const weight = active ? 9 : clickable ? 6 : 4;
@@ -31,9 +31,9 @@ export default function TrafficLayer({ segments, activeIds = [], onSegmentClick 
               positions={latLngs}
               interactive={false}
               pathOptions={{
-                color: "#2A2D30",
+                color: scheme === "dark" ? "#000000" : "#2A2D30",
                 weight: weight + 3,
-                opacity: active ? 0.9 : 0.55,
+                opacity: scheme === "dark" ? 0.8 : active ? 0.9 : 0.55,
                 lineCap: "round",
                 lineJoin: "round",
               }}

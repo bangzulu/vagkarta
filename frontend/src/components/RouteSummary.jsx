@@ -1,7 +1,7 @@
 import { conditionFor, formatKm } from "../conditions";
 
 // Rutten uträtad till en linje från start till mål, och varningarna i ordning längs den.
-export default function RouteSummary({ segments, stretches, activeStretch, onSelect }) {
+export default function RouteSummary({ segments, stretches, activeStretch, onSelect, scheme }) {
   const total = segments.at(-1)?.endKm ?? 0;
   const covered = segments
     .filter((s) => s.color !== "black")
@@ -24,7 +24,7 @@ export default function RouteSummary({ segments, stretches, activeStretch, onSel
           <span
             key={s.id}
             className="strip-part"
-            style={{ flexGrow: s.lengthKm, background: conditionFor(s.color).color }}
+            style={{ flexGrow: s.lengthKm, background: conditionFor(s.color, scheme).color }}
           />
         ))}
       </div>
@@ -42,7 +42,7 @@ export default function RouteSummary({ segments, stretches, activeStretch, onSel
       {stretches.length > 0 ? (
         <ol className="stretches">
           {stretches.map((st) => {
-            const cond = conditionFor(st.color);
+            const cond = conditionFor(st.color, scheme);
             const place = [st.info?.roadNumber, st.info?.locationText]
               .filter(Boolean)
               .join(", ");

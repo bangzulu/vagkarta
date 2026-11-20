@@ -1,5 +1,5 @@
 import { useMemo, useState, useCallback } from "react";
-import { MapContainer, TileLayer } from "react-leaflet";
+import { MapContainer } from "react-leaflet";
 import { checkRoute } from "./services/api";
 import TrafficLayer from "./components/TrafficLayer";
 import AddressSearch from "./components/AddressSearch";
@@ -8,18 +8,20 @@ import FocusSegment from "./components/FocusSegment";
 import SegmentPopup from "./components/SegmentPopup";
 import RouteSummary from "./components/RouteSummary";
 import WarningSign from "./components/WarningSign";
-import { CONDITIONS, LEGEND_ORDER, withDistances, warningStretches } from "./conditions";
+import BaseMap from "./components/BaseMap";
+import useColorScheme from "./useColorScheme";
+import { LEGEND_ORDER, conditionFor, withDistances, warningStretches } from "./conditions";
 import "./App.css";
 
-function Legend() {
+function Legend({ scheme }) {
   return (
     <div className="legend">
       <h2 className="legend-title">Teckenförklaring</h2>
       <ul>
         {LEGEND_ORDER.map((key) => (
           <li key={key}>
-            <span className="line-swatch" style={{ "--c": CONDITIONS[key].color }} />
-            {CONDITIONS[key].label}
+            <span className="line-swatch" style={{ "--c": conditionFor(key, scheme).color }} />
+            {conditionFor(key).label}
           </li>
         ))}
       </ul>
@@ -28,6 +30,7 @@ function Legend() {
 }
 
 export default function App() {
+  const scheme = useColorScheme();
   const [from, setFrom] = useState(null);
   const [to, setTo] = useState(null);
   const [rawSegments, setRawSegments] = useState([]);
@@ -116,11 +119,12 @@ export default function App() {
             stretches={stretches}
             activeStretch={activeStretch}
             onSelect={setActiveStretch}
+            scheme={scheme}
           />
         )}
 
         <div className="desktop-legend">
-          <Legend />
+          <Legend scheme={scheme} />
         </div>
 
         <footer className="sidebar-footer">
@@ -134,14 +138,12 @@ export default function App() {
 
       <main className="map-wrapper">
         <MapContainer center={[62.0, 15.0]} zoom={5} style={{ height: "100%", width: "100%" }}>
-          <TileLayer
-            attribution="© OpenStreetMap contributors"
-            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-          />
+          <BaseMap scheme={scheme} />
           <TrafficLayer
             segments={segments}
             activeIds={activeStretch?.segmentIds}
             onSegmentClick={selectFromMap}
+            scheme={scheme}
           />
           {route && <FitBounds route={route} />}
           <FocusSegment stretch={activeStretch} segments={segments} />
@@ -149,12 +151,12 @@ export default function App() {
 
         {hasRoute && (
           <div className="map-legend">
-            <Legend />
+            <Legend scheme={scheme} />
           </div>
         )}
 
         {activeStretch && (
-          <SegmentPopup stretch={activeStretch} totalKm={totalKm} onClose={closePopup} />
+          <SegmentPopup stretch={activeStretch} totalKm={totalKm} onClose={closePopup} scheme={scheme} />
         )}
       </main>
     </div>

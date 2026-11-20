@@ -18,6 +18,14 @@
   --sign-yellow: #F6B40E;
   --sign-yellow-hover: #E5A600;
   --sign-red: #C8102E;
+  --on-sign: #2A2D30;
+  --edge: #2A2D30;
+  --shadow: rgba(42, 45, 48, 0.45);
+  --swatch-edge: rgba(42, 45, 48, 0.55);
+  --map-bg: #E9ECEE;
+  --legend-overlay: rgba(255, 255, 255, 0.94);
+
+  color-scheme: light dark;
 
   --font: "Barlow", system-ui, sans-serif;
   --font-narrow: "Barlow Semi Condensed", "Barlow", system-ui, sans-serif;
@@ -27,6 +35,35 @@
   line-height: 1.45;
   color: var(--asphalt);
   -webkit-font-smoothing: antialiased;
+}
+
+/* ── Mörkt läge: samma asfalt, fast på natten ── */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --asphalt: #E4E6E8;
+    --asphalt-soft: #B5BAC0;
+    --gravel: #8A9097;
+    --marking: #34383D;
+    --snow: #1C1E21;
+    --frost: #141517;
+    --edge: #4A4F55;
+    --shadow: rgba(0, 0, 0, 0.6);
+    --swatch-edge: rgba(0, 0, 0, 0.7);
+    --map-bg: #0E0E0E;
+    --legend-overlay: rgba(28, 30, 33, 0.94);
+  }
+
+  .address-search input {
+    border-color: #464B51;
+  }
+
+  .address-search input::placeholder {
+    color: #7A8087;
+  }
+
+  .search-btn:disabled {
+    background: #8C6F22;
+  }
 }
 
 body {
@@ -183,11 +220,11 @@ a:hover {
   left: 26px;
   right: 0;
   background: var(--snow);
-  border: 1px solid var(--asphalt);
+  border: 1px solid var(--edge);
   border-radius: 4px;
   z-index: 9999;
   overflow: hidden;
-  box-shadow: 0 10px 24px -10px rgba(42, 45, 48, 0.45);
+  box-shadow: 0 10px 24px -10px var(--shadow);
 }
 
 .suggestions li {
@@ -212,7 +249,7 @@ a:hover {
   width: 100%;
   height: 46px;
   background: var(--sign-yellow);
-  color: var(--asphalt);
+  color: var(--on-sign);
   border: none;
   border-radius: 4px;
   font: inherit;
@@ -242,7 +279,7 @@ a:hover {
   width: 14px;
   height: 14px;
   border: 2px solid rgba(42, 45, 48, 0.25);
-  border-top-color: var(--asphalt);
+  border-top-color: var(--on-sign);
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
   flex-shrink: 0;
@@ -437,7 +474,7 @@ a:hover {
   height: 6px;
   border-radius: 3px;
   background: var(--c);
-  box-shadow: 0 0 0 1.5px rgba(42, 45, 48, 0.55);
+  box-shadow: 0 0 0 1.5px var(--swatch-edge);
   flex-shrink: 0;
 }
 
@@ -463,25 +500,36 @@ a:hover {
   overflow: hidden;
 }
 
-/* Gråskalig bakgrundskarta så att väglagsfärgerna är det enda som syns */
-.leaflet-tile-pane {
-  filter: grayscale(1) contrast(0.9) brightness(1.05);
-}
-
-.leaflet-container {
-  background: var(--frost);
+/* Avskalad bakgrundskarta (CARTO) – väglagsfärgerna ska vara det enda som syns */
+.map-wrapper .leaflet-container {
+  background: var(--map-bg);
   font-family: var(--font);
 }
 
 .leaflet-bar {
-  border: 1px solid var(--asphalt) !important;
+  border: 1px solid var(--edge) !important;
   border-radius: 4px !important;
   box-shadow: none !important;
 }
 
-.leaflet-bar a {
+.leaflet-bar a,
+.leaflet-bar a:hover {
+  background: var(--snow) !important;
   color: var(--asphalt) !important;
   border-bottom-color: var(--marking) !important;
+}
+
+.leaflet-bar a:hover {
+  background: var(--frost) !important;
+}
+
+.leaflet-control-attribution {
+  background: var(--legend-overlay) !important;
+  color: var(--gravel) !important;
+}
+
+.leaflet-control-attribution a {
+  color: var(--asphalt-soft) !important;
 }
 
 .route-line.is-clickable {
@@ -496,11 +544,11 @@ a:hover {
   transform: translateX(-50%);
   width: min(420px, calc(100% - 32px));
   background: var(--snow);
-  border: 1px solid var(--asphalt);
+  border: 1px solid var(--edge);
   border-radius: 6px;
   padding: 16px 18px 14px;
   z-index: 1000;
-  box-shadow: 0 14px 30px -12px rgba(42, 45, 48, 0.5);
+  box-shadow: 0 14px 30px -12px var(--shadow);
 }
 
 .popup-head {
@@ -652,7 +700,7 @@ a:hover {
     bottom: 0;
     left: 0;
     right: 0;
-    background: rgba(255, 255, 255, 0.94);
+    background: var(--legend-overlay);
     border-top: 1px solid var(--marking);
     padding: 10px 14px 12px;
     z-index: 500;
@@ -691,7 +739,7 @@ a:hover {
     border-width: 1px 0 0;
     border-radius: 10px 10px 0 0;
     padding-bottom: calc(14px + env(safe-area-inset-bottom));
-    box-shadow: 0 -10px 30px -12px rgba(42, 45, 48, 0.45);
+    box-shadow: 0 -10px 30px -12px var(--shadow);
   }
 
   .sidebar {
